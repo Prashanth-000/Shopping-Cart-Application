@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shopping Cart Application</title>
+<style>
+  /* CSS styles */
+  .App {
+    text-align: center;
+  }
+
+  header {
+    background-color: #333;
+    color: white;
+    padding: 20px;
+  }
+
+  input[type="text"] {
+    padding: 8px;
+    border-radius: 4px;
+    border: none;
+  }
+
+  .filters {
+    margin: 20px 0;
+  }
+
+  .filters button {
+    margin: 0 10px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    cursor: pointer;
+  }
+
+  .products {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .product-card {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin: 10px;
+    padding: 20px;
+    width: 200px;
+  }
+
+  .product-card img {
+    width: 100%;
+    border-radius: 4px;
+  }
+
+  .quantity button {
+    margin-top: 10px;
+    padding: 8px 16px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .quantity button:hover {
+    background-color: #218838;
+  }
+
+  .cart {
+    margin-top: 50px;
+  }
+
+  .cart ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .cart li {
+    margin: 10px 0;
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+<script type="text/babel">
+// React.js code
+const { useState } = React;
+
+function App() {
+  const [products, setProducts] = useState([
+    { id: 1, name: 'Laptop', price: 899, rating: 4.5, image: 'laptop.jpg', quantity: 0 },
+    { id: 2, name: 'Smartphone', price: 599, rating: 4.3, image: 'smartphone.jpg', quantity: 0 },
+    { id: 3, name: 'Headphones', price: 149, rating: 4.2, image: 'headphones.jpg', quantity: 0 }
+  ]);
+
+  const [cart, setCart] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+
+  const addToCart = (product) => {
+    const updatedCart = [...cart];
+    const existingItemIndex = updatedCart.findIndex(item => item.id === product.id);
+
+    if (existingItemIndex !== -1) {
+      updatedCart[existingItemIndex].quantity += 1;
+    } else {
+      updatedCart.push({ ...product, quantity: 1 });
+    }
+
+    setCart(updatedCart);
+  };
+
+  const handleSearch = (event) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const handleCategoryFilter = (category) => {
+    setSelectedCategory(category);
+  };
+
+  const handleIncrement = (product) => {
+    const updatedProducts = [...products];
+    const index = updatedProducts.findIndex(p => p.id === product.id);
+    updatedProducts[index].quantity++;
+    setProducts(updatedProducts);
+  };
+
+  const handleDecrement = (product) => {
+    const updatedProducts = [...products];
+    const index = updatedProducts.findIndex(p => p.id === product.id);
+    if (updatedProducts[index].quantity > 0) {
+      updatedProducts[index].quantity--;
+    }
+    setProducts(updatedProducts);
+  };
+
+  const filteredProducts = products.filter(product => {
+    if (selectedCategory === 'All' || product.category === selectedCategory) {
+      return product.name.toLowerCase().includes(searchTerm.toLowerCase());
+    }
+    return false;
+  });
+
+  return (
+    <div className="App">
+      <header>
+        <h1>Shopping Cart</h1>
+        <input type="text" placeholder="Search..." value={searchTerm} onChange={handleSearch} />
+      </header>
+      <div className="filters">
+        <button onClick={() => handleCategoryFilter('All')}>All</button>
+        <button onClick={() => handleCategoryFilter('Electronics')}>Electronics</button>
+        <button onClick={() => handleCategoryFilter('Accessories')}>Accessories</button>
+      </div>
+      <div className="products">
+        {filteredProducts.map(product => (
+          <div className="product-card" key={product.id}>
+            <img src={product.image} alt={product.name} />
+            <h2>{product.name}</h2>
+            <p>${product.price}</p>
+            <div className="rating">Rating: {product.rating}</div>
+            <div className="quantity">
+              <button onClick={() => handleDecrement(product)}>-</button>
+              <span>{product.quantity}</span>
+              <button onClick={() => handleIncrement(product)}>+</button>
+              <button onClick={() => addToCart(product)}>Add to Cart</button>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="cart">
+        <h2>Cart</h2>
+        <ul>
+          {cart.map(item => (
+            <li key={item.id}>
+              {item.name} - Quantity: {item.quantity}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.render(<App />, document.getElementById('root'));
+</script>
+</body>
+</html>
